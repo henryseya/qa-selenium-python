@@ -1,0 +1,37 @@
+name: Selenium Python Tests CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  selenium-python-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout codigo
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Ejecutar tests
+        run: pytest tests/ -v --tb=short --alluredir=allure-results
+
+      - name: Subir resultados Allure
+        uses: actions/upload-artifact@v4.6.2
+        if: always()
+        with:
+          name: allure-results
+          path: allure-results/
+          retention-days: 30
